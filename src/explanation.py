@@ -44,48 +44,27 @@ def generate_llm_explanation(structured_json, stage, generator=None):
         return _fallback_rule_based(structured_json, stage)
         
     try:
-        # 2. Strict Deterministic Prompt formulation
-        # Explicit instructions to avoid hallucination entirely
-        prompt = (
-            f"You are a clinical AI assistant. Generate a concise explanation ONLY based on the provided structured retinal analysis.\\n"
-            f"Do not add new information. Do not hallucinate. Do not generalize beyond the given data.\\n"
-            f"Context: {stage}\\n"
-            f"Data:\\n"
-            f"- intensity: {structured_json['intensity']}\\n"
-            f"- spread: {structured_json['spread']}\\n"
-            f"- location: {structured_json['location']}\\n"
-            f"- area_percent: {structured_json['area_percent']}%\\n"
-            f"Output one professional clinical paragraph of exactly 2 sentences.\\n"
-            f"Explanation: "
-        )
+        # 2. Dynamic prompt formulation
+        intensity = structured_json.get('intensity', 'unknown')
+        spread = structured_json.get('spread', 'unknown')
+        location = structured_json.get('location', 'unknown')
+        area_percent = structured_json.get('area_percent', 0.0)
+
+        prompt = f"Generate a clinical explanation for diabetic retinopathy. Intensity: {intensity}, Spread: {spread}, Location: {location}, Area affected: {area_percent}%."
+        print("LLM called with:", prompt)
         
-        # 3. Controlled deterministic execution (Remove creativity)
-        output = generator(
-            prompt, 
-            max_new_tokens=80,
-            num_return_sequences=1,
-            do_sample=True, # enable sampling strictly for temp controls
-            temperature=0.1, # Extremely low temperature to remove creativity
-            top_p=0.85, 
-            repetition_penalty=1.2
-        )
+        # 3. Controlled execution
+        output = generator(prompt, max_length=150)
         
-        generated_text = output[0]['generated_text'].strip()
+        explanation = output[0]['generated_text'].strip()
         
         # 4. Debug Mode Logging
         print("====== DEBUG MODE: LLM HYBRID EXPLANATION ======")
         print("[LLM USED] - Execution Successful")
-        print(f"INPUT JSON:   {json.dumps(structured_json)}")
-        print(f"RAW LLM TEXT: {generated_text}")
+        print(f"RAW LLM TEXT: {explanation}")
         print("================================================")
         
-        # 5. Fallback verification (Ensures LLM actually retained the factual numeric inputs)
-        area_str = str(structured_json['area_percent'])
-        if area_str not in generated_text:
-            print(f"LLM hallucination rejected (missing exact area {area_str}%). Falling back to hybrid deterministic engine...")
-            return _fallback_rule_based(structured_json, stage)
-            
-        return generated_text
+        return explanation
         
     except Exception as e:
         print(f"LLM Generation pipeline failed: {e}")

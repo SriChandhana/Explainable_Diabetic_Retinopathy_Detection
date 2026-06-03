@@ -1,0 +1,119 @@
+====================================================================
+PROJECT OVERVIEW: MED-AI: Retinal Pathology Dashboard V4
+====================================================================
+
+PROJECT DESCRIPTION
+-------------------
+A hybrid neuro-symbolic AI diagnostic dashboard application designed to classify Diabetic Retinopathy (DR) from retinal scans. The system features a multi-stage pipeline utilizing convolutional deep learning networks for initial visual assessment, integrated with local Large Language Models (LLMs) to synthesize mathematical lesion data into explainable, deterministic clinical interpretations. 
+
+====================================================================
+TECHNICAL STACK & LIBRARIES
+====================================================================
+
+1. Frontend & UI Framework
+   - Streamlit (v1.32.2)
+
+2. Deep Learning & Computer Vision
+   - PyTorch (torch) & Torchvision
+   - Timm (For state-of-the-art vision models)
+   - OpenCV (opencv-python)
+   - Pillow (Image Processing)
+   - NumPy (Numerical computations)
+
+3. Explainable AI (XAI)
+   - grad-cam (GradCAM++)
+
+4. Natural Language Processing (LLM)
+   - Transformers (Hugging Face)
+   - Accelerate & SentencePiece
+   - Model: 'google/flan-t5-small' (Deployed natively)
+
+5. Visualization & Reporting
+   - Plotly (Interactive gauge charts & probabilities)
+   - Matplotlib 
+   - fpdf2 (For autonomous PDF generation)
+
+====================================================================
+CORE PIPELINE & FEATURES
+====================================================================
+
+1. Model Inference (Vision Engine)
+----------------------------------
+- Preprocessing: Standard PyTorch pipeline; resizes image patches to (224, 224), normalizes channels, and converts to a multi-dimensional flat tensor.
+- Architecture: Employs EfficientNet-B0 (via Timm). The fully connected head was modified from standard ImageNet classes to predict 5 specific developmental stages of Diabetic Retinopathy:
+  1. No DR 
+  2. Mild DR 
+  3. Moderate DR 
+  4. Severe DR 
+  5. Proliferative DR
+- Calibration: Predicts probabilities applying Fixed Temperature Scaling (T=2.0) on the pre-softmax logits. This acts as a dampener preventing extreme, perpetual 100% false-confidence outliers common in over-confident CNNs.
+
+2. Localized Explainability (Grad-CAM++)
+----------------------------------
+- Replaces generic black-box approaches by intercepting gradient responses directly at the terminal convolutional block using Grad-CAM++.
+- Outputs extremely precise structural features natively mapping multiple separated lesion sites (instead of traditional blurry monolithic heatmaps).
+- Deploys a secondary binary spatial mass to evaluate image patches specifically breaching an activation threshold of 0.6.
+
+3. Deterministic Lesion Extraction
+----------------------------------
+- A mathematical processing block that strips spatial gradients from the CNN into strictly defined geometric constraint mappings.
+- Leverages local computer vision logic (connected components) to precisely formulate explicit geometric rules:
+  -> Intensity Percentage
+  -> Number of Localized Clusters/Lesions
+  -> Anatomical Location Spread (macular vs peripheral bounds overlap)
+- Projects finding scores into a synthesized JSON output scaling a finite 0-100 severity severity Lesion Score.
+
+4. Regulated LLM Interpretation
+----------------------------------
+- Implements `google/flan-t5-small` completely in a local context (preventing sensitive PHI data transmission).
+- Uses a tightly constrained Temperature Generation (T=0.1) blocking the AI engine from "hallucinating" or inventing external clinical scenarios natively.
+- Active Output Monitoring & Fallback: Verifies if the LLM output definitively incorporated the raw mathematical parameters provided by the JSON parsing step. If verification fails, the LLM component is discarded in favor of a 100% deterministic rule-based sentence generator.
+
+5. Report Generation & Presentation Array
+----------------------------------
+- Visual Array: Custom CSS styled Streamlit display presenting original retinal imagery, threshold masked imagery, heatmaps, and probability bar charts + Guage plots.
+- Auto-Reporter: Synthesizes a completed localized medical directive, utilizing `fpdf2` to bind images, deterministic summaries, confidence scoring, and rule-based fallback evaluations into an offline portable PDF.
+
+====================================================================
+END-TO-END SYSTEM WORKFLOW (USER & DATA LIFECYCLE)
+====================================================================
+
+The following defines the step-by-step process executed when interacting with the dashboard:
+
+1. Initialization Phase
+   - The application mounts via Streamlit.
+   - The Vision engine (EfficientNet-B0) is loaded into memory (CPU/CUDA) and cached to prevent reloading delays.
+   - The clinician decides whether to toggle the "Local LLM Generator". If toggled, `google/flan-t5-small` initializes into memory.
+
+2. User Input (Data Ingestion)
+   - The clinician uploads a 2D retinal scan image (PNG/JPEG) through the Streamlit file uploader.
+   - The server instantly validates and decodes the image into an RGB matrix.
+
+3. Step-1: Pre-Processing Pipeline
+   - The image is forwarded to `src/preprocessing.py`.
+   - Patches are isolated, downscaled to (224 x 224), normalized via standard ImageNet parameters, and packaged into a PyTorch tensor.
+
+4. Step-2: Model Inference & Probability Calibration
+   - The tensor is passed strictly through the fine-tuned EfficientNet-B0 backbone.
+   - Raw logits are generated and intercepted before final classification. 
+   - A deterministic Temperature Scaling formula (T=2.0) smooths out extreme confidence intervals, resulting in a stable and realistic Softmax array predicting 5 different stages.
+
+5. Step-3: Neuro-Symbolic Explainability (Grad-CAM++)
+   - `src/gradcam.py` intercepts gradients from the finalized EfficientNet layer.
+   - It superimposes a high-resolution, multi-lesion color-mapped heatmap detailing exactly what triggered the vision model.
+   - A threshold mask computationally crops this heatmap down to areas with a severity confidence index of over 60%.
+
+6. Step-4: Metric Quantization
+   - `src/lesion_score.py` mathematically translates the visual Grad-CAM output back into strict scalar constraints (bounding boxes, area density, intensity).
+   - Generates a severity "Lesion Score" scale (0-100) and formats a JSON attributes object.
+
+7. Step-5: Language Engine Synthesis (Flan-T5)
+   - Parameters from Step-4, alongside the main visual prediction from Step-2, are pushed to `src/explanation.py`.
+   - The local LLM parses the metrics and dynamically writes an observational paragraph using severe creative limitations to prevent medical hallucinations.
+
+8. Step-6: Final Presentation & Export Validation
+   - The Streamlit engine populates all data concurrently: 
+     * Top Banner with explicit immediate recommendations.
+     * Original vs XAI Image layout columns.
+     * Plotly visual confidence meters.
+   - If requested, the system maps the outputs into `src/report_generator.py` and compiles all current-state diagnostic text, graphs, and imagery into a downloadable one-page clinical PDF.

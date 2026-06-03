@@ -27,18 +27,10 @@ def get_model():
 @st.cache_resource
 def get_local_llm():
     try:
-        from transformers import AutoTokenizer, AutoModelForSeq2SeqLM
-
-        tokenizer = AutoTokenizer.from_pretrained("google/flan-t5-small")
-        model = AutoModelForSeq2SeqLM.from_pretrained("google/flan-t5-small")
-
-        def generate(prompt):
-            inputs = tokenizer(prompt, return_tensors="pt")
-            outputs = model.generate(**inputs, max_length=120)
-            return tokenizer.decode(outputs[0], skip_special_tokens=True)
-
+        from transformers import pipeline
+        generator = pipeline("text2text-generation", model="google/flan-t5-small")
         print("LLM LOADED SUCCESSFULLY")  # debug
-        return generate
+        return generator
 
     except Exception as e:
         st.error(f"Failed to load Transformers: {e}")
