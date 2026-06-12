@@ -174,27 +174,6 @@ docs/pdf-report.png
 
 ---
 
-## 📂 Project Structure
-
-```text
-project/
-│
-├── dataset/
-├── models/
-├── preprocessing/
-├── explainability/
-├── reports/
-├── notebooks/
-├── docs/
-│   ├── sample-retina.png
-│   ├── prediction-result.png
-│   ├── gradcam-heatmap.png
-│   └── pdf-report.png
-│
-└── README.md
-```
-
----
 
 ## 🔮 Future Improvements
 
