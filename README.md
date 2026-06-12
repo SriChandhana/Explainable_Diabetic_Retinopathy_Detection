@@ -81,6 +81,10 @@ Retinal Fundus Image
 | Explainability    | Grad-CAM             |
 | Report Generation | PDF Clinical Reports |
 
+<img width="553" height="251" alt="PHOTO-2026-04-05-22-03-50" src="https://github.com/user-attachments/assets/e6e44fd8-4c71-4846-bea2-dc36769900ad" />
+<img width="1060" height="640" alt="PHOTO-2026-04-05-22-10-05" src="https://github.com/user-attachments/assets/e1c916a0-4b7a-46ac-beb3-7363b89bb911" />
+
+
 ### Key Outcomes
 
 * Achieved 86% accuracy on diabetic retinopathy classification.
@@ -135,6 +139,8 @@ Retinal Fundus Image
 ### Generated Clinical PDF Report
 
 <img width="1600" height="389" alt="PHOTO-2026-04-05-22-28-01" src="https://github.com/user-attachments/assets/93c54dfb-a45c-49f1-831a-fd93637330c3" />
+<img width="1170" height="2532" alt="878" src="https://github.com/user-attachments/assets/1ccd5fb9-861b-49f1-a6b2-b986e9f3f794" />
+
 
 
 
