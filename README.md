@@ -118,61 +118,24 @@ Retinal Fundus Image
 
 ## 📸 Screenshots
 
-### Dataset Sample
+### Homepage
+<img width="1600" height="417" alt="PHOTO-2026-04-05-22-26-33" src="https://github.com/user-attachments/assets/cb8b012d-3282-4e4d-a870-cc81b1fac785" />
 
-Place image here:
-
-```text
-docs/sample-retina.png
-```
-
-```markdown
-![Dataset Sample](docs/sample-retina.png)
-```
-
----
 
 ### Model Prediction
 
-Place image here:
+<img width="1600" height="664" alt="PHOTO-2026-04-05-22-26-58" src="https://github.com/user-attachments/assets/0674a05d-b888-4b6a-907b-71114c052d68" />
 
-```text
-docs/prediction-result.png
-```
-
-```markdown
-![Prediction Result](docs/prediction-result.png)
-```
-
----
 
 ### Grad-CAM Heatmap
+<img width="1600" height="694" alt="PHOTO-2026-04-05-22-27-35" src="https://github.com/user-attachments/assets/df151c5d-8e2b-4a2d-91e6-dd67f99c0069" />
 
-Place image here:
-
-```text
-docs/gradcam-heatmap.png
-```
-
-```markdown
-![GradCAM](docs/gradcam-heatmap.png)
-```
-
----
+<img width="224" height="224" alt="PHOTO-2026-04-05-22-05-47" src="https://github.com/user-attachments/assets/8a4410de-1561-461e-989b-ab087ff5239a" />
 
 ### Generated Clinical PDF Report
 
-Place image here:
+<img width="1600" height="389" alt="PHOTO-2026-04-05-22-28-01" src="https://github.com/user-attachments/assets/93c54dfb-a45c-49f1-831a-fd93637330c3" />
 
-```text
-docs/pdf-report.png
-```
-
-```markdown
-![Clinical Report](docs/pdf-report.png)
-```
-
----
 
 
 ## 🔮 Future Improvements
